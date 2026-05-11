@@ -153,15 +153,17 @@ public class Weaviate extends VectorStore {
             
             // Read response body
             StringBuilder response = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                        responseCode >= 200 && responseCode < 300 
-                            ? conn.getInputStream() 
-                            : conn.getErrorStream(),
-                        StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    response.append(line);
+            java.io.InputStream responseStream = (responseCode >= 200 && responseCode < 300)
+                    ? conn.getInputStream()
+                    : conn.getErrorStream();
+            
+            if (responseStream != null) {
+                try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(responseStream, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        response.append(line);
+                    }
                 }
             }
             
